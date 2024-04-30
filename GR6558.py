@@ -307,3 +307,126 @@ axes.add_feature(land_mask, facecolor='grey')
 axes.set_ylim(-60, 60,1)
 plt.show()
 
+#TC Climatology and changes
+
+# An example of classifing CHAZ TC in WNP for 10 seeding ens, 40 intensity ens
+# This is a basic code, so it take about 3 minute to generate the final product
+# To improve the speed, you can do the average for all ensembes(400) to get the mean of frequency for one model
+#This is for only 1 model and 1 experiment.
+
+new_regions=xr.open_dataset('/data/ylin/share_scripts/TC_basin_180x90.nc')['__xarray_dataarray_variable__']
+
+def is_point_in_region_xarray(lat1, lon1, data_array):
+    value = data_array.sel(lat=lat1, lon=lon1, method='nearest').values
+    return value
+
+
+in_dir='/work/ggyabaah/CHAZ/'
+model='ACCESS-CM2'
+exp='historical'
+hum='SD'
+ens=10
+
+freq_wnp_ac2h_CRH=np.zeros((65,10,40,6))
+freq_ep_ac2h_CRH=np.zeros((65,10,40,6))
+freq_na_ac2h_CRH=np.zeros((65,10,40,6))
+freq_ni_ac2h_CRH=np.zeros((65,10,40,6))
+freq_si_ac2h_CRH=np.zeros((65,10,40,6))
+freq_sp_ac2h_CRH=np.zeros((65,10,40,6))
+#freq_au_ac2h_CRH=np.zeros((65,10,40,6))#year(1950-2015),ens(10),int(40),category(0,1,2,3,4,5)
+
+for iy,year in enumerate(range(1950,2015)):
+    for ie in range(ens):
+        
+        
+        
+        
+        in_file=in_dir+model+'/'+exp+'/wdir_HIST_'+hum+'/output/'+model+'_'+str(year)+'_ens00'+str(ie)+'.nc'
+        readin=xr.open_dataset(in_file)
+            
+        maxw_id=(readin['Mwspd'].max('lifelength'))
+            
+        lon_id=readin['longitude'][0,:]
+        lat_id=readin['latitude'][0,:]
+        basin_idx=np.array([is_point_in_region_xarray(lat1, lon1, new_regions) for lat1, lon1 in zip(lat_id.values,lon_id.values)])
+            
+            
+        wk_basin=(np.argwhere((basin_idx==0))).T[0] #basin_idx 0:WNP
+            
+        for inten in range(40):
+            
+            wk_maxw_id=maxw_id[inten,wk_basin]
+            
+            freq_wnp_ac2h_CRH[iy,ie,inten,5]=xr.where((wk_maxw_id>=137),1,np.nan).sum().values
+            freq_wnp_ac2h_CRH[iy,ie,inten,4]=xr.where(((wk_maxw_id<137)&(wk_maxw_id>=113)),1,np.nan).sum().values
+            freq_wnp_ac2h_CRH[iy,ie,inten,3]=xr.where(((wk_maxw_id<113)&(wk_maxw_id>=96)),1,np.nan).sum().values
+            freq_wnp_ac2h_CRH[iy,ie,inten,2]=xr.where(((wk_maxw_id<96)&(wk_maxw_id>=83)),1,np.nan).sum().values
+            freq_wnp_ac2h_CRH[iy,ie,inten,1]=xr.where(((wk_maxw_id<83)&(wk_maxw_id>=64)),1,np.nan).sum().values
+            freq_wnp_ac2h_CRH[iy,ie,inten,0]=xr.where(((wk_maxw_id<64)&(wk_maxw_id>=34)),1,np.nan).sum().values
+        
+        wk_basin=(np.argwhere((basin_idx==1))).T[0] 
+            
+        for inten in range(40):
+            
+            wk_maxw_id=maxw_id[inten,wk_basin]
+            
+            freq_ep_ac2h_CRH[iy,ie,inten,5]=xr.where((wk_maxw_id>=137),1,np.nan).sum().values
+            freq_ep_ac2h_CRH[iy,ie,inten,4]=xr.where(((wk_maxw_id<137)&(wk_maxw_id>=113)),1,np.nan).sum().values
+            freq_ep_ac2h_CRH[iy,ie,inten,3]=xr.where(((wk_maxw_id<113)&(wk_maxw_id>=96)),1,np.nan).sum().values
+            freq_ep_ac2h_CRH[iy,ie,inten,2]=xr.where(((wk_maxw_id<96)&(wk_maxw_id>=83)),1,np.nan).sum().values
+            freq_ep_ac2h_CRH[iy,ie,inten,1]=xr.where(((wk_maxw_id<83)&(wk_maxw_id>=64)),1,np.nan).sum().values
+            freq_ep_ac2h_CRH[iy,ie,inten,0]=xr.where(((wk_maxw_id<64)&(wk_maxw_id>=34)),1,np.nan).sum().values
+        
+        wk_basin=(np.argwhere((basin_idx==2))).T[0] 
+            
+        for inten in range(40):
+            
+            wk_maxw_id=maxw_id[inten,wk_basin]
+            
+            freq_na_ac2h_CRH[iy,ie,inten,5]=xr.where((wk_maxw_id>=137),1,np.nan).sum().values
+            freq_na_ac2h_CRH[iy,ie,inten,4]=xr.where(((wk_maxw_id<137)&(wk_maxw_id>=113)),1,np.nan).sum().values
+            freq_na_ac2h_CRH[iy,ie,inten,3]=xr.where(((wk_maxw_id<113)&(wk_maxw_id>=96)),1,np.nan).sum().values
+            freq_na_ac2h_CRH[iy,ie,inten,2]=xr.where(((wk_maxw_id<96)&(wk_maxw_id>=83)),1,np.nan).sum().values
+            freq_na_ac2h_CRH[iy,ie,inten,1]=xr.where(((wk_maxw_id<83)&(wk_maxw_id>=64)),1,np.nan).sum().values
+            freq_na_ac2h_CRH[iy,ie,inten,0]=xr.where(((wk_maxw_id<64)&(wk_maxw_id>=34)),1,np.nan).sum().values
+        
+        wk_basin=(np.argwhere((basin_idx==4))).T[0]  
+        for inten in range(40):            
+            wk_maxw_id=maxw_id[inten,wk_basin]
+            freq_ni_ac2h_CRH[iy,ie,inten,5]=xr.where((wk_maxw_id>=137),1,np.nan).sum().values
+            freq_ni_ac2h_CRH[iy,ie,inten,4]=xr.where(((wk_maxw_id<137)&(wk_maxw_id>=113)),1,np.nan).sum().values
+            freq_ni_ac2h_CRH[iy,ie,inten,3]=xr.where(((wk_maxw_id<113)&(wk_maxw_id>=96)),1,np.nan).sum().values
+            freq_ni_ac2h_CRH[iy,ie,inten,2]=xr.where(((wk_maxw_id<96)&(wk_maxw_id>=83)),1,np.nan).sum().values
+            freq_ni_ac2h_CRH[iy,ie,inten,1]=xr.where(((wk_maxw_id<83)&(wk_maxw_id>=64)),1,np.nan).sum().values
+            freq_ni_ac2h_CRH[iy,ie,inten,0]=xr.where(((wk_maxw_id<64)&(wk_maxw_id>=34)),1,np.nan).sum().values
+        
+        wk_basin=(np.argwhere((basin_idx==5))).T[0]
+        for inten in range(40):
+            
+            wk_maxw_id=maxw_id[inten,wk_basin]
+            
+            freq_si_ac2h_CRH[iy,ie,inten,5]=xr.where((wk_maxw_id>=137),1,np.nan).sum().values
+            freq_si_ac2h_CRH[iy,ie,inten,4]=xr.where(((wk_maxw_id<137)&(wk_maxw_id>=113)),1,np.nan).sum().values
+            freq_si_ac2h_CRH[iy,ie,inten,3]=xr.where(((wk_maxw_id<113)&(wk_maxw_id>=96)),1,np.nan).sum().values
+            freq_si_ac2h_CRH[iy,ie,inten,2]=xr.where(((wk_maxw_id<96)&(wk_maxw_id>=83)),1,np.nan).sum().values
+            freq_si_ac2h_CRH[iy,ie,inten,1]=xr.where(((wk_maxw_id<83)&(wk_maxw_id>=64)),1,np.nan).sum().values
+            freq_si_ac2h_CRH[iy,ie,inten,0]=xr.where(((wk_maxw_id<64)&(wk_maxw_id>=34)),1,np.nan).sum().values
+        wk_basin=(np.argwhere((basin_idx==6))).T[0] #basin_idx 0:WNP
+            
+        for inten in range(40):
+            
+            wk_maxw_id=maxw_id[inten,wk_basin]
+            
+            freq_sp_ac2h_CRH[iy,ie,inten,5]=xr.where((wk_maxw_id>=137),1,np.nan).sum().values
+            freq_sp_ac2h_CRH[iy,ie,inten,4]=xr.where(((wk_maxw_id<137)&(wk_maxw_id>=113)),1,np.nan).sum().values
+            freq_sp_ac2h_CRH[iy,ie,inten,3]=xr.where(((wk_maxw_id<113)&(wk_maxw_id>=96)),1,np.nan).sum().values
+            freq_sp_ac2h_CRH[iy,ie,inten,2]=xr.where(((wk_maxw_id<96)&(wk_maxw_id>=83)),1,np.nan).sum().values
+            freq_sp_ac2h_CRH[iy,ie,inten,1]=xr.where(((wk_maxw_id<83)&(wk_maxw_id>=64)),1,np.nan).sum().values
+            freq_sp_ac2h_CRH[iy,ie,inten,0]=xr.where(((wk_maxw_id<64)&(wk_maxw_id>=34)),1,np.nan).sum().values
+                            
+        readin.close()
+        
+        
+
+
+
