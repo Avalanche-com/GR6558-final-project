@@ -425,7 +425,127 @@ for iy,year in enumerate(range(1950,2015)):
             freq_sp_ac2h_CRH[iy,ie,inten,0]=xr.where(((wk_maxw_id<64)&(wk_maxw_id>=34)),1,np.nan).sum().values
                             
         readin.close()
-        
+
+
+
+#Here the code is repeated for each experiment and their composite is what was used to make the plots:
+    
+basins = ['WNP', 'EP', 'NA', 'NI', 'SI', 'SP']
+freqs = [wnph,
+         eph,
+         nah,
+         nih,
+         sih,
+         sph]
+freqsa = [wnpa,
+         epa,
+         naa,
+         nia,
+         sia,
+         spa]
+freqsg = [wnpg,
+         epg,
+         nag,
+         nig,
+         sig,
+         spg]
+freqsn = [wnpn,
+         epn,
+         nan,
+         nin,
+         sin,
+         spn]
+
+
+basins = ['WNP', 'EP', 'NA', 'NI', 'SI', 'SP']
+cats = ['TS', 'Cat 1', 'Cat 2', 'Cat 3', 'Cat 4', 'Cat 5']
+
+fh = [f - fn for f, fn in zip(freqs, freqsn)]
+fa = [a - fn for a, fn in zip(freqsa, freqsn)]
+fg = [g - fn for g, fn in zip(freqsg, freqsn)]
+
+bar_width = 0.2
+index = np.arange(len(cats))
+
+fig, axs = plt.subplots(6, 1, figsize=(10, 20), dpi=100)
+
+for i, basin in enumerate(basins):
+    ax = axs[i]
+
+    ax.bar(index - bar_width, freqs[i][:len(cats)], bar_width, color='blue', label='HIST-nat')
+    ax.bar(index, freqsg[i][:len(cats)], bar_width, color='red', label='GHG-nat')
+    ax.bar(index + bar_width, freqsa[i][:len(cats)], bar_width, color='brown', label='AER-nat')
+    ax.bar(index + bar_width * 2, freqsn[i][:len(cats)], bar_width, color='green', label='NAT')
+
+    ax.set_xlabel('Categories')
+    ax.set_ylabel('Frequency')
+    
+    ax.set_xticks(index + bar_width / 2)
+    ax.set_xticklabels(cats)
+    
+    ax.legend()
+    
+    ax.set_title(f'{basin.upper()}')
+
+plt.tight_layout()
+plt.show()
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+cats = ['TS', 'Cat 1', 'Cat 2', 'Cat 3', 'Cat 4', 'Cat 5']
+n = (wnpn + epn + nan +nin+ sin + spn)
+h = (wnph + eph + nah +nin+ sih + sph)-n
+a = (wnpa + epa + naa +nin+ sia + spa)-n
+g = (wnpg + epg + nag + nin+ sig + spg)-n
+
+bar_width = 0.2
+index = np.arange(len(cats))
+
+fig, axs = plt.subplots(7, 1, figsize=(10, 24), dpi=1000)
+
+ax = axs[0]
+ax.bar(index - bar_width, h[:len(cats)], bar_width, color='blue', label='HIST')
+ax.bar(index, g[:len(cats)], bar_width, color='red', label='GHG')
+ax.bar(index + bar_width, a[:len(cats)], bar_width, color='brown', label='AER')
+#ax.bar(index + bar_width * 2, n[:len(cats)], bar_width, color='green', label='NAT')
+
+ax.set_xlabel('Categories')
+ax.set_ylabel('Frequency')
+ax.set_xticks(index + bar_width / 2)
+ax.set_xticklabels(cats)
+ax.legend()
+ax.set_ylim(-1,1.5,0.1)
+
+ax.set_title('SD Global TC frequency difference 10 models (10ens,40int) (1950-2014)', fontsize=12)
+ax.text(0.5, 0.95, 'Global', ha='center', va='center', transform=ax.transAxes, fontsize=14, fontweight='bold',color='black')
+
+for i, basin in enumerate(basins):
+    ax = axs[i+1]
+    
+
+    ax.bar(index - bar_width, fh[i][:len(cats)], bar_width, color='blue', label='HIST-NAT')
+    
+    ax.bar(index, fg[i][:len(cats)], bar_width, color='red', label='GHG-NAT')
+    
+    ax.bar(index + bar_width, fa[i][:len(cats)], bar_width, color='brown', label='AER-NAT')
+    #ax.bar(index + bar_width * 2, fn[i][:len(cats)], bar_width, color='green', label='NAT-NAT')
+
+    ax.set_xlabel('Categories')
+    ax.set_ylabel('Frequency')
+    
+    ax.set_xticks(index + bar_width / 2)
+    ax.set_xticklabels(cats)
+    ax.set_ylim(-1,1.5,0.1)
+    ax.legend()
+    ax.text(0.5, 0.95, basin, ha='center', va='center', transform=ax.transAxes, fontsize=14, fontweight='bold', color='black')
+
+    ax.set_title(f'{basin.upper()}')
+
+plt.tight_layout()
+plt.show()
+
         
 
 
